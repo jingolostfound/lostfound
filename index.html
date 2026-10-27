@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>분실물 안내</title>
+<style>:root{--blue:#2f6fb3;--blue-dark:#245a94;--blue-soft:#eaf2fb;--text:#1f2933;--muted:#6b7785;--line:#dde3ea;--ok:#2d7a4f;--ok-bg:#e8f5ee;--warn-bg:#fff6e0}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif;color:var(--text);background:#fff;line-height:1.55;font-size:16px}
+.wrap{max-width:720px;margin:0 auto;padding:0 16px 48px}
+header.top{padding:20px 0 8px}
+header.top .school{color:var(--blue);font-weight:600;font-size:14px;margin:0}
+header.top h1{margin:2px 0 0;font-size:24px}
+.notice{background:var(--blue-soft);border-radius:12px;padding:14px 16px;margin:12px 0 16px;font-size:15px}
+.notice h2{font-size:15px;margin:0 0 4px;color:var(--blue-dark)}
+.notice p{margin:0 0 10px;white-space:pre-line}.notice p:last-child{margin:0}
+.demo-banner{background:var(--warn-bg);border:1px solid #f0d58a;border-radius:10px;padding:10px 14px;margin:12px 0;font-size:14px}
+.tabs{display:flex;gap:8px;margin:8px 0 12px}
+.tab{flex:1;min-height:46px;border:1px solid var(--line);background:#fff;border-radius:10px;font-size:16px;font-weight:600;color:var(--muted);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--blue);border-color:var(--blue);color:#fff}
+.filters{display:flex;gap:8px;margin-bottom:14px}
+input,select,textarea{font:inherit;width:100%;min-height:46px;padding:10px 12px;border:1px solid #c6cfd9;border-radius:10px;background:#fff;color:var(--text)}
+textarea{min-height:90px;resize:vertical}
+.filters input{flex:2}.filters select{flex:1}
+:focus-visible{outline:3px solid #9cc2ec;outline-offset:1px}
+.list{display:grid;gap:12px}
+.card{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+.card-main{display:flex;gap:12px;width:100%;padding:10px;border:0;background:none;text-align:left;font:inherit;color:inherit;cursor:pointer;align-items:stretch}
+.thumb{width:96px;height:96px;flex:none;border-radius:8px;object-fit:cover;background:#f0f3f7}
+.noimg{display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13px}
+.info{min-width:0;flex:1}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.no{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.name{margin:2px 0 4px;font-size:17px;line-height:1.3;word-break:break-word}
+.meta{margin:0;font-size:13.5px;color:var(--muted)}
+.badge{font-size:12.5px;font-weight:600;padding:2px 9px;border-radius:99px;white-space:nowrap}
+.badge.stored{background:var(--blue-soft);color:var(--blue-dark)}
+.badge.returned{background:var(--ok-bg);color:var(--ok)}
+.empty{text-align:center;color:var(--muted);padding:36px 12px;border:1px dashed var(--line);border-radius:12px}
+.muted{color:var(--muted)}
+.btn{min-height:46px;padding:0 16px;border-radius:10px;border:1px solid var(--blue);background:var(--blue);color:#fff;font:inherit;font-weight:600;cursor:pointer}
+.btn:hover{background:var(--blue-dark)}
+.btn.ghost{background:#fff;color:var(--blue-dark)}
+.btn.danger{background:#fff;color:#b3261e;border-color:#e3a6a2}
+.btn.block{width:100%}
+.btn:disabled{opacity:.55;cursor:wait}
+.actions{display:flex;gap:8px;flex-wrap:wrap;padding:0 10px 10px}
+.actions .btn{flex:1;min-width:96px;font-size:15px}
+dialog{border:0;border-radius:16px;padding:0;width:min(560px,94vw);max-height:92vh;box-shadow:0 10px 40px rgba(0,0,0,.25)}
+dialog::backdrop{background:rgba(20,30,45,.5)}
+.dlg{padding:18px}
+.dlg .photo{width:100%;max-height:60vh;object-fit:contain;background:#f0f3f7;border-radius:10px}
+.dlg .photo.noimg{height:140px}
+.dlg h2{margin:12px 0 4px}
+.dlg .desc{white-space:pre-wrap;margin:10px 0}
+.dlg dl{margin:10px 0;display:grid;grid-template-columns:84px 1fr;gap:4px 8px;font-size:15px}
+.dlg dt{color:var(--muted)}.dlg dd{margin:0}
+.notice-guide{font-size:14px;background:var(--blue-soft);padding:10px 12px;border-radius:10px;margin-top:12px}
+form label{display:block;font-weight:600;font-size:14.5px;margin:12px 0 4px}
+fieldset{border:1px solid #e3b8b5;background:#fff8f7;border-radius:12px;margin:16px 0 0;padding:4px 12px 14px}
+fieldset legend{font-weight:700;color:#8f2b25;font-size:14px;padding:0 6px}
+.check{display:flex;align-items:center;gap:8px;font-weight:400!important}
+.check input{width:20px;min-height:20px}
+.preview{max-width:100%;max-height:200px;border-radius:8px;margin-top:8px}
+.formbtns{display:flex;gap:8px;margin-top:18px}.formbtns .btn{flex:1}
+.bar{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:8px 0}
+.err{color:#b3261e;font-size:14.5px;margin:8px 0}
+#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#243447;color:#fff;border-radius:12px;padding:10px 14px;display:none;gap:12px;align-items:center;z-index:50;max-width:92vw;font-size:15px}
+#toast.show{display:flex}
+#toast button{background:none;border:1px solid #8fb4e0;color:#cfe3fb;border-radius:8px;min-height:36px;padding:0 12px;font:inherit;cursor:pointer}
+details.settings{border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin:12px 0}
+details.settings summary{cursor:pointer;font-weight:600;min-height:32px}
+footer{margin-top:28px;font-size:13px;color:var(--muted);text-align:center}
+footer a{color:var(--muted)}
+.login{max-width:400px;margin:40px auto 0}
+.pass{font-family:ui-monospace,monospace}.fail{color:#b3261e;font-weight:700}.ok{color:var(--ok);font-weight:700}
+</style></head>
+<body>
+<div id="studentwrap"><div class="wrap">
+  <header class="top"><p class="school" id="school"></p><h1 id="title"></h1></header>
+  <div id="demo"></div>
+  <section class="notice" aria-label="운영 안내">
+    <h2>운영 시간</h2><p id="hours"></p>
+    <h2>물건 찾는 방법</h2><p id="howto"></p>
+  </section>
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" id="tab-stored" aria-selected="true" data-tab="stored">보관 중</button>
+    <button class="tab" role="tab" id="tab-returned" aria-selected="false" data-tab="returned">반환 완료</button>
+  </div>
+  <div class="filters">
+    <input id="q" type="search" placeholder="물품명 검색" aria-label="물품명 검색">
+    <select id="cat" aria-label="종류"><option value="">전체 종류</option></select>
+  </div>
+  <div id="list" class="list" aria-live="polite"></div>
+  <footer><a href="#admin">관리자</a></footer>
+</div>
+<dialog id="detail"></dialog></div>
+<div class="wrap" id="adminwrap"><div id="app"></div><footer><a href="#">← 학생 화면으로</a></footer></div>
+<dialog id="editor"></dialog>
+<div id="toast" role="status"></div>
+<script>
+/* ===== 설정: 아래 "..." 안의 글자만 고치세요 (따옴표와 쉼표는 지우지 마세요) ===== */
+window.APP_CONFIG = {
+  "schoolName": "진천고등학교",
+  "siteTitle": "분실물 안내",
+  "supabaseUrl": "https://dqqszayqnphaayjbjdhi.supabase.co",
+  "supabaseAnonKey": "sb_publishable_wC_3IU_MQgfR1PYJUNgqJg_PYg6W-aR",
+  "photoBucket": "item-photos",
+  "itemNoPrefix": "L-",
+  "categories": [
+    "전자기기",
+    "의류",
+    "신발",
+    "학용품",
+    "기타"
+  ],
+  "locations": [
+    "학생부실",
+    "행정실",
+    "도서관",
+    "교무실"
+  ],
+  "defaultHours": "평일 점심시간 12:30~13:20, 방과 후 16:30~17:00",
+  "defaultHowTo": "1. 물건 번호를 확인하세요.\n2. 보관 장소로 와서 담당 선생님께 물건의 특징을 설명해 주세요.\n3. 선생님이 확인한 뒤 돌려드립니다."
+};
+/* ===== 설정 끝 ===== */
+if (location.hash === '#admin') document.getElementById('studentwrap').style.display='none'; else document.getElementById('adminwrap').style.display='none';
+window.addEventListener('hashchange', function(){ location.reload(); });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>/* 학생 화면과 관리자 화면이 함께 쓰는 도구 */
+(function () {
+  const C = window.APP_CONFIG;
+  const configured = !!(C.supabaseUrl && C.supabaseAnonKey);
+  const sb = configured && window.supabase
+    ? window.supabase.createClient(C.supabaseUrl, C.supabaseAnonKey) : null;
+
+  const STATUS = { stored: "보관 중", returned: "반환 완료" };
+
+  // 안전한 DOM 생성 (사용자 입력을 HTML로 해석하지 않음)
+  function h(tag, props, ...kids) {
+    const el = document.createElement(tag);
+    for (const [k, v] of Object.entries(props || {})) {
+      if (v == null || v === false) continue;
+      if (k === "class") el.className = v;
+      else if (k === "text") el.textContent = v;
+      else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+      else if (v === true) el.setAttribute(k, "");
+      else el.setAttribute(k, v);
+    }
+    for (const kid of kids.flat()) if (kid != null && kid !== false) el.append(kid);
+    return el;
+  }
+
+  const formatNo = (n) => C.itemNoPrefix + String(n).padStart(4, "0");
+  const formatDate = (iso) => iso ? new Date(iso).toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric" }) : "";
+  const photoUrl = (path) => path && sb ? sb.storage.from(C.photoBucket).getPublicUrl(path).data.publicUrl : null;
+
+  function thumb(item, cls) {
+    const url = photoUrl(item.photo_path);
+    return url
+      ? h("img", { class: cls, src: url, alt: item.name + " 사진", loading: "lazy" })
+      : h("div", { class: cls + " noimg", text: "사진 없음" });
+  }
+
+  function badge(status) {
+    return h("span", { class: "badge " + status, text: STATUS[status] || status });
+  }
+
+  // 목록 카드 (학생/관리자 공통)
+  function card(item, onOpen) {
+    return h("article", { class: "card" },
+      h("button", { class: "card-main", type: "button", onclick: () => onOpen(item), "aria-label": item.name + " 자세히 보기" },
+        thumb(item, "thumb"),
+        h("div", { class: "info" },
+          h("div", { class: "row" }, h("span", { class: "no", text: formatNo(item.seq_no) }), badge(item.status)),
+          h("h3", { class: "name", text: item.name }),
+          h("p", { class: "meta", text: "등록일 " + formatDate(item.registered_at) }),
+          h("p", { class: "meta", text: "보관 장소 " + (item.storage_location || "미정") })
+        )
+      )
+    );
+  }
+
+  // 연결 전 임시 화면에서 쓰는 샘플 (실제 저장되지 않음)
+  const now = Date.now(), day = 864e5;
+  const DEMO = [
+    { id: "d1", seq_no: 3, name: "검정색 무선 이어폰 케이스", category: "전자기기", description: "검정색 케이스입니다. (샘플)", storage_location: "학생부실", status: "stored", photo_path: null, registered_at: new Date(now - 1 * day).toISOString() },
+    { id: "d2", seq_no: 2, name: "파란색 체육복 상의", category: "의류", description: "왼쪽 가슴에 학교 로고가 있습니다. (샘플)", storage_location: "행정실", status: "stored", photo_path: null, registered_at: new Date(now - 3 * day).toISOString() },
+    { id: "d3", seq_no: 1, name: "필통", category: "학용품", description: "샘플 데이터입니다.", storage_location: "학생부실", status: "returned", photo_path: null, registered_at: new Date(now - 9 * day).toISOString() }
+  ];
+
+  function demoBanner() {
+    return h("div", { class: "demo-banner", role: "status" },
+      "⚠ 임시 화면입니다. 아직 데이터베이스가 연결되지 않아 샘플 데이터가 보이며, 아무것도 저장되지 않습니다. (README의 '연결하기' 참고)");
+  }
+
+  window.App = { C, sb, configured, STATUS, h, formatNo, formatDate, photoUrl, thumb, badge, card, DEMO, demoBanner };
+})();
+</script>
+<script>(function () { if (location.hash === '#admin') return;
+  const { C, sb, h, formatNo, formatDate, thumb, badge, card, DEMO, demoBanner, configured } = window.App;
+  const $ = (id) => document.getElementById(id);
+  // 학생 화면은 아래 '공개 컬럼'만 요청합니다. (비공개 정보는 다른 테이블이라 요청해도 받을 수 없음)
+  const PUBLIC_COLUMNS = "id,seq_no,name,category,description,storage_location,status,photo_path,registered_at,returned_at";
+  const state = { tab: "stored", q: "", cat: "" };
+  let items = [];
+
+  document.title = C.siteTitle + " | " + C.schoolName;
+  $("school").textContent = C.schoolName;
+  $("title").textContent = C.siteTitle;
+  if (!configured || !sb) $("demo").append(demoBanner());
+  C.categories.forEach((c) => $("cat").append(h("option", { value: c, text: c })));
+
+  async function loadNotice() {
+    let hours = C.defaultHours, how = C.defaultHowTo;
+    if (sb) {
+      const { data } = await sb.from("settings").select("hours,how_to").eq("id", 1).maybeSingle();
+      if (data) { hours = data.hours || hours; how = data.how_to || how; }
+    }
+    $("hours").textContent = hours; $("howto").textContent = how;
+  }
+
+  async function load() {
+    $("list").replaceChildren(h("p", { class: "muted", text: "불러오는 중…" }));
+    if (!sb) {
+      items = DEMO.filter((i) => i.status === state.tab).sort((a, b) => b.registered_at.localeCompare(a.registered_at));
+    } else {
+      const { data, error } = await sb.from("items").select(PUBLIC_COLUMNS)
+        .eq("status", state.tab).order("registered_at", { ascending: false }).limit(1000);
+      if (error) { $("list").replaceChildren(h("p", { class: "empty", text: "목록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요." })); return; }
+      items = data;
+    }
+    render();
+  }
+
+  function render() {
+    const q = state.q.trim().toLowerCase();
+    const shown = items.filter((i) => (!state.cat || i.category === state.cat) && (!q || i.name.toLowerCase().includes(q)));
+    if (!shown.length) {
+      const msg = items.length
+        ? "검색 결과가 없어요. 다른 이름이나 종류로 찾아보세요."
+        : state.tab === "stored" ? "지금 보관 중인 분실물이 없어요." : "반환 완료된 물품이 아직 없어요.";
+      $("list").replaceChildren(h("p", { class: "empty", text: msg }));
+      return;
+    }
+    $("list").replaceChildren(...shown.map((i) => card(i, openDetail)));
+  }
+
+  function openDetail(i) {
+    const d = $("detail");
+    d.replaceChildren(h("div", { class: "dlg" },
+      thumb(i, "photo"),
+      h("h2", { text: i.name }),
+      h("div", { class: "row" }, h("span", { class: "no", text: "관리 번호 " + formatNo(i.seq_no) }), badge(i.status)),
+      i.description ? h("p", { class: "desc", text: i.description }) : null,
+      h("dl", {},
+        h("dt", { text: "종류" }), h("dd", { text: i.category }),
+        h("dt", { text: "등록일" }), h("dd", { text: formatDate(i.registered_at) }),
+        h("dt", { text: "보관 장소" }), h("dd", { text: i.storage_location || "미정" }),
+        i.status === "returned" ? [h("dt", { text: "반환일" }), h("dd", { text: formatDate(i.returned_at) })] : null
+      ),
+      i.status === "stored" ? h("p", { class: "notice-guide", text: "내 물건 같다면 위 관리 번호를 기억해 보관 장소로 와서 담당 선생님께 알려 주세요." }) : null,
+      h("div", { class: "formbtns" }, h("button", { class: "btn block", type: "button", onclick: () => d.close(), text: "닫기" }))
+    ));
+    d.showModal();
+  }
+  $("detail").addEventListener("click", (e) => { if (e.target === $("detail")) $("detail").close(); });
+
+  document.querySelectorAll(".tab").forEach((b) => b.addEventListener("click", () => {
+    state.tab = b.dataset.tab;
+    document.querySelectorAll(".tab").forEach((t) => t.setAttribute("aria-selected", String(t === b)));
+    load();
+  }));
+  $("q").addEventListener("input", (e) => { state.q = e.target.value; render(); });
+  $("cat").addEventListener("change", (e) => { state.cat = e.target.value; render(); });
+
+  loadNotice(); load();
+})();
+</script>
+<script>(function () { if (location.hash !== '#admin') return;
+  const { C, sb, h, formatNo, card, STATUS } = window.App;
+  const app = document.getElementById("app");
+  const editor = document.getElementById("editor");
+  const state = { tab: "stored", q: "", items: [] };
+  let toastTimer;
+
+  /* ---------- 공통 ---------- */
+  function toast(msg, undoFn) {
+    const t = document.getElementById("toast");
+    t.replaceChildren(h("span", { text: msg }));
+    if (undoFn) t.append(h("button", { type: "button", text: "되돌리기", onclick: async () => { t.classList.remove("show"); await undoFn(); } }));
+    t.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove("show"), undoFn ? 10000 : 3500);
+  }
+  const msgOf = (e) => (e && e.message) || "알 수 없는 오류";
+
+  // RLS는 권한이 없으면 오류 없이 0행만 바꾸므로, 실제로 바뀐 행이 있는지 확인합니다.
+  async function mustChange(query) {
+    const { data, error } = await query.select();
+    if (error) throw error;
+    if (!data || !data.length) throw new Error("변경되지 않았습니다. 로그인이 만료되었거나 관리자 권한이 없습니다.");
+    return data;
+  }
+
+  /* ---------- 시작 / 로그인 ---------- */
+  async function init() {
+    if (!sb) {
+      app.replaceChildren(h("h1", { text: "관리자" }), window.App.demoBanner(),
+        h("p", { text: "config.txt에 Supabase 주소와 키를 넣으면 로그인 화면이 나타납니다. README의 '연결하기'를 따라 주세요." }));
+      return;
+    }
+    const { data } = await sb.auth.getSession();
+    if (!data.session) return showLogin();
+    if (!(await isAdmin())) return denyAndLogout();
+    showDashboard();
+  }
+
+  async function isAdmin() {
+    const { data } = await sb.from("admins").select("user_id").maybeSingle();
+    return !!data;
+  }
+  async function denyAndLogout() {
+    await sb.auth.signOut();
+    showLogin("이 계정은 관리자 권한이 없습니다.");
+  }
+
+  function showLogin(message) {
+    const email = h("input", { type: "email", autocomplete: "username", required: true });
+    const pw = h("input", { type: "password", autocomplete: "current-password", required: true });
+    const err = h("p", { class: "err", role: "alert", text: message || "" });
+    const btn = h("button", { class: "btn block", type: "submit", text: "로그인" });
+    const form = h("form", { class: "login" },
+      h("h1", { text: "관리자 로그인" }),
+      h("label", { text: "이메일" }), email, h("label", { text: "비밀번호" }), pw, err,
+      h("div", { class: "formbtns" }, btn));
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault(); btn.disabled = true; err.textContent = "";
+      const { error } = await sb.auth.signInWithPassword({ email: email.value.trim(), password: pw.value });
+      btn.disabled = false;
+      if (error) { err.textContent = "이메일 또는 비밀번호가 올바르지 않습니다."; return; }
+      if (!(await isAdmin())) return denyAndLogout();
+      showDashboard();
+    });
+    app.replaceChildren(form);
+  }
+
+  /* ---------- 대시보드 ---------- */
+  function showDashboard() {
+    const list = h("div", { class: "list" });
+    const q = h("input", { type: "search", placeholder: "물품명 또는 관리 번호 검색", "aria-label": "검색" });
+    q.addEventListener("input", () => { state.q = q.value; renderList(); });
+
+    const tabBtn = (key) => h("button", { class: "tab", type: "button", role: "tab", "aria-selected": String(state.tab === key), "data-tab": key, text: STATUS[key],
+      onclick: () => { state.tab = key; app.querySelectorAll(".tab").forEach((t) => t.setAttribute("aria-selected", String(t.dataset.tab === key))); loadItems(); } });
+
+    app.replaceChildren(
+      h("div", { class: "bar" }, h("h1", { text: "관리자", style: "margin:0;font-size:22px" }),
+        h("button", { class: "btn ghost", type: "button", text: "로그아웃", onclick: async () => { await sb.auth.signOut(); showLogin(); } })),
+      h("button", { class: "btn block", type: "button", text: "+ 새 물품 등록", onclick: () => openEditor(null) }),
+      settingsBox(),
+      h("div", { class: "tabs", role: "tablist" }, tabBtn("stored"), tabBtn("returned")),
+      h("div", { class: "filters" }, q),
+      list);
+    app._list = list;
+    loadItems();
+  }
+
+  function settingsBox() {
+    const hours = h("textarea", { rows: "2" }), how = h("textarea", { rows: "4" });
+    const save = h("button", { class: "btn block", type: "button", text: "안내 문구 저장" });
+    sb.from("settings").select("hours,how_to").eq("id", 1).maybeSingle().then(({ data }) => {
+      hours.value = (data && data.hours) || C.defaultHours; how.value = (data && data.how_to) || C.defaultHowTo;
+    });
+    save.addEventListener("click", async () => {
+      save.disabled = true;
+      try { await mustChange(sb.from("settings").update({ hours: hours.value.trim(), how_to: how.value.trim() }).eq("id", 1)); toast("안내 문구를 저장했습니다."); }
+      catch (e) { toast("저장 실패: " + msgOf(e)); }
+      save.disabled = false;
+    });
+    return h("details", { class: "settings" }, h("summary", { text: "학생 화면 안내 문구 수정 (운영 시간·찾는 방법)" }),
+      h("label", { text: "운영 시간" }), hours, h("label", { text: "물건 찾는 방법" }), how, h("div", { style: "margin-top:12px" }, save));
+  }
+
+  async function loadItems() {
+    app._list.replaceChildren(h("p", { class: "muted", text: "불러오는 중…" }));
+    const { data, error } = await sb.from("items").select("*").eq("status", state.tab).order("registered_at", { ascending: false }).limit(1000);
+    if (error) { app._list.replaceChildren(h("p", { class: "err", text: "불러오기 실패: " + msgOf(error) })); return; }
+    state.items = data; renderList();
+  }
+
+  function renderList() {
+    const q = state.q.trim().toLowerCase();
+    const shown = state.items.filter((i) => !q || i.name.toLowerCase().includes(q) || formatNo(i.seq_no).toLowerCase().includes(q));
+    if (!shown.length) { app._list.replaceChildren(h("p", { class: "empty", text: state.items.length ? "검색 결과가 없습니다." : "이 목록에 물품이 없습니다." })); return; }
+    app._list.replaceChildren(...shown.map((i) => {
+      const el = card(i, openEditor);
+      const toStatus = i.status === "stored" ? "returned" : "stored";
+      el.append(h("div", { class: "actions" },
+        h("button", { class: "btn", type: "button", text: toStatus === "returned" ? "반환 완료로 변경" : "보관 중으로 되돌리기", onclick: () => changeStatus(i, toStatus) }),
+        h("button", { class: "btn ghost", type: "button", text: "수정", onclick: () => openEditor(i) }),
+        h("button", { class: "btn danger", type: "button", text: "삭제", onclick: () => removeItem(i) })));
+      return el;
+    }));
+  }
+
+  /* ---------- 상태 변경 (+되돌리기) ---------- */
+  async function setStatus(item, status) {
+    await mustChange(sb.from("items").update({ status, returned_at: status === "returned" ? new Date().toISOString() : null }).eq("id", item.id));
+  }
+  async function changeStatus(item, status) {
+    const prev = item.status;
+    try {
+      await setStatus(item, status);
+      toast(`${formatNo(item.seq_no)} → ${STATUS[status]}`, async () => {
+        try { await setStatus(item, prev); toast("되돌렸습니다."); loadItems(); } catch (e) { toast("되돌리기 실패: " + msgOf(e)); }
+      });
+      loadItems();
+    } catch (e) { toast("변경 실패: " + msgOf(e)); }
+  }
+
+  /* ---------- 삭제 ---------- */
+  async function removeItem(item) {
+    if (!confirm(`${formatNo(item.seq_no)} '${item.name}' 물품을 삭제할까요?\n삭제하면 사진과 비공개 정보도 함께 지워지며 되돌릴 수 없습니다.\n(반환 처리라면 삭제 대신 '반환 완료로 변경'을 사용하세요.)`)) return;
+    try {
+      await mustChange(sb.from("items").delete().eq("id", item.id));
+      if (item.photo_path) await sb.storage.from(C.photoBucket).remove([item.photo_path]);
+      toast("삭제했습니다."); loadItems();
+    } catch (e) { toast("삭제 실패: " + msgOf(e)); }
+  }
+
+  /* ---------- 등록/수정 폼 ---------- */
+  async function resizeImage(file, max = 1280) {
+    const bmp = await createImageBitmap(file);
+    const s = Math.min(1, max / Math.max(bmp.width, bmp.height));
+    const c = document.createElement("canvas");
+    c.width = Math.round(bmp.width * s); c.height = Math.round(bmp.height * s);
+    c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
+    return new Promise((res, rej) => c.toBlob((b) => (b ? res(b) : rej(new Error("사진을 처리하지 못했습니다."))), "image/jpeg", 0.82));
+  }
+
+  async function openEditor(item) {
+    const isNew = !item;
+    let priv = {};
+    if (!isNew) {
+      const { data } = await sb.from("item_private").select("*").eq("item_id", item.id).maybeSingle();
+      priv = data || {};
+    }
+    const v = (x) => x || "";
+    const name = h("input", { required: true, maxlength: "100", value: v(item && item.name) });
+    const cat = h("select", {}, ...C.categories.map((c) => h("option", { value: c, text: c })));
+    cat.value = (item && item.category) || "기타";
+    const desc = h("textarea", { maxlength: "1000", placeholder: "학생에게 보여줄 간단한 설명 (색상, 크기 등)" }); desc.value = v(item && item.description);
+    const loc = h("input", { list: "locs", maxlength: "60", value: v(item && item.storage_location) || C.locations[0] || "" });
+    const locs = h("datalist", { id: "locs" }, ...C.locations.map((l) => h("option", { value: l })));
+    const status = h("select", {}, h("option", { value: "stored", text: STATUS.stored }), h("option", { value: "returned", text: STATUS.returned }));
+    status.value = (item && item.status) || "stored";
+    const file = h("input", { type: "file", accept: "image/*" });
+    const prev = h("img", { class: "preview", alt: "사진 미리보기", hidden: true });
+    const curUrl = item && window.App.photoUrl(item.photo_path);
+    if (curUrl) { prev.src = curUrl; prev.hidden = false; }
+    const rm = h("input", { type: "checkbox" });
+    file.addEventListener("change", () => { if (file.files[0]) { prev.src = URL.createObjectURL(file.files[0]); prev.hidden = false; rm.checked = false; } });
+    const fDate = h("input", { type: "date", value: v(priv.found_date) });
+    const fPlace = h("input", { maxlength: "100", value: v(priv.found_place) });
+    const feat = h("textarea", { maxlength: "1000", placeholder: "주인 확인용 특징 (예: 케이스 안쪽 스티커, 잠금화면 사진, 이름표)" }); feat.value = v(priv.features);
+    const err = h("p", { class: "err", role: "alert" });
+    const saveBtn = h("button", { class: "btn", type: "submit", text: isNew ? "등록" : "저장" });
+
+    const form = h("form", { class: "dlg" },
+      h("h2", { text: isNew ? "새 물품 등록" : `${formatNo(item.seq_no)} 수정`, style: "margin-top:0" }),
+      h("label", { text: "물품명 *" }), name,
+      h("label", { text: "종류" }), cat,
+      h("label", { text: "설명 (학생에게 공개)" }), desc,
+      h("label", { text: "보관 장소 (학생에게 공개)" }), loc, locs,
+      h("label", { text: "사진 (선택)" }), file, prev,
+      item && item.photo_path ? h("label", { class: "check" }, rm, "현재 사진 삭제") : null,
+      isNew ? null : h("label", { text: "반환 상태" }),
+      isNew ? null : status,
+      h("fieldset", {}, h("legend", { text: "🔒 관리자 전용 — 학생에게 공개되지 않음" }),
+        h("label", { text: "발견 날짜" }), fDate, h("label", { text: "발견 장소" }), fPlace, h("label", { text: "주인 확인용 특징" }), feat),
+      err,
+      h("div", { class: "formbtns" }, h("button", { class: "btn ghost", type: "button", text: "취소", onclick: () => editor.close() }), saveBtn));
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault(); err.textContent = ""; saveBtn.disabled = true;
+      let newPath = null;
+      try {
+        let photo_path = item ? item.photo_path : null;
+        if (file.files[0]) {
+          const blob = await resizeImage(file.files[0]);
+          newPath = crypto.randomUUID() + ".jpg";
+          const up = await sb.storage.from(C.photoBucket).upload(newPath, blob, { contentType: "image/jpeg", cacheControl: "31536000" });
+          if (up.error) throw up.error;
+          photo_path = newPath;
+        } else if (rm.checked) photo_path = null;
+
+        const row = { name: name.value.trim(), category: cat.value, description: desc.value.trim(), storage_location: loc.value.trim(), photo_path };
+        const privRow = { found_date: fDate.value || null, found_place: fPlace.value.trim(), features: feat.value.trim() };
+
+        if (isNew) {
+          const { data, error } = await sb.from("items").insert(row).select().single();
+          if (error) throw error;
+          const r = await sb.from("item_private").insert({ item_id: data.id, ...privRow });
+          if (r.error) { await sb.from("items").delete().eq("id", data.id); throw r.error; }
+        } else {
+          row.status = status.value;
+          if (status.value !== item.status) row.returned_at = status.value === "returned" ? new Date().toISOString() : null;
+          await mustChange(sb.from("items").update(row).eq("id", item.id));
+          const r = await sb.from("item_private").upsert({ item_id: item.id, ...privRow });
+          if (r.error) throw r.error;
+          if (item.photo_path && item.photo_path !== photo_path) await sb.storage.from(C.photoBucket).remove([item.photo_path]);
+        }
+        editor.close(); toast(isNew ? "등록했습니다." : "저장했습니다."); loadItems();
+      } catch (ex) {
+        if (newPath) await sb.storage.from(C.photoBucket).remove([newPath]);
+        err.textContent = "저장하지 못했습니다: " + msgOf(ex);
+      }
+      saveBtn.disabled = false;
+    });
+    editor.replaceChildren(form);
+    editor.showModal();
+  }
+
+  init();
+})();
+</script>
+</body></html>
