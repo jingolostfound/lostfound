@@ -144,7 +144,7 @@ window.APP_CONFIG = {
   "storageLocation": "학생회실",
   "guides": {
     "find": { "title": "내 물건 찾아가기", "steps": [
-      ["사진과 관리 번호 확인", "이 사이트에서 내 물건이 있는지 찾아보세요."],
+      ["사진과 관리 번호 확인", "이 사이트에서 내 물건을 찾고, 맞으면 \u0027반환 신청\u0027을 남겨 주세요."],
       ["학생회실에서 설명", "관리 번호를 말하고, 잃어버린 상황과 사진에 없는 특징을 알려 주세요."],
       ["확인되면 가져가기", "설명이 기록과 맞으면 물건을 돌려드려요."]
     ]},
@@ -305,12 +305,45 @@ window.addEventListener('hashchange', function(){ location.reload(); });
         h("dt", { text: "보관 장소" }), h("dd", { text: C.storageLocation }),
         i.status === "returned" ? [h("dt", { text: "반환일" }), h("dd", { text: formatDate(i.returned_at) })] : null
       ),
-      i.status === "stored" ? h("p", { class: "notice-guide", text: "내 물건 같다면 위 관리 번호를 기억해 학생회실로 와 주세요." }) : null,
-      h("div", { class: "formbtns" }, h("button", { class: "btn block", type: "button", onclick: () => d.close(), text: "닫기" }))
+      i.status === "stored" ? h("p", { class: "notice-guide", text: "내 물건 같다면 반환 신청을 남기고, 위 관리 번호를 기억해 학생회실로 와 주세요. 신청만으로는 돌려받을 수 없고, 학생회실에서 확인을 받아야 해요." }) : null,
+      i.status === "stored" ? h("div", { class: "formbtns" }, h("button", { class: "btn block", type: "button", text: "반환 신청", onclick: () => openReturn(i) })) : null,
+      h("div", { class: "formbtns" }, h("button", { class: "btn ghost block", type: "button", onclick: () => d.close(), text: "닫기" }))
     ));
     d.showModal();
   }
   $("detail").addEventListener("click", (e) => { if (e.target === $("detail")) $("detail").close(); });
+
+  /* ---------- 반환 신청 ---------- */
+  function openReturn(i) {
+    const d = $("detail");
+    const contact = h("input", { required: true, maxlength: "100", placeholder: "예: 2학년 3반 홍길동", autocomplete: "off" });
+    const err = h("p", { class: "err", role: "alert" });
+    const btn = h("button", { class: "btn block", type: "submit", text: "신청 보내기" });
+    const form = h("form", { class: "dlg" },
+      h("h2", { text: "반환 신청", style: "margin-top:0" }),
+      h("p", { class: "meta", text: formatNo(i.seq_no) + " · " + i.name }),
+      h("p", { class: "notice-guide", text: "신청은 '내 물건 같아요'라는 요청이에요. 신청만으로는 돌려받을 수 없고, 학생회실에서 관리 번호와 물건의 특징을 설명해 확인을 받아야 해요. 같은 물건에 여러 명이 신청하면 학생회와 상의해 정해요." }),
+      h("label", { text: "학년·반·이름 (연락처) *" }), contact,
+      h("p", { class: "help", text: "학생회실에서 본인 확인에만 쓰이고, 따로 연락하지는 않아요. 전화번호처럼 꼭 필요하지 않은 개인정보는 적지 마세요." }),
+      err,
+      h("div", { class: "formbtns" }, h("button", { class: "btn ghost", type: "button", text: "취소", onclick: () => openDetail(i) }), btn));
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault(); err.textContent = "";
+      if (!sb) { err.textContent = "임시 화면이라 저장되지 않아요. (연결 후 사용할 수 있어요)"; return; }
+      if (!contact.value.trim()) { err.textContent = "학년·반·이름을 적어 주세요."; return; }
+      if (tooSoon()) { err.textContent = "방금 보냈어요. 1분 뒤에 다시 시도해 주세요."; return; }
+      btn.disabled = true; btn.textContent = "보내는 중…";
+      const { error } = await sb.from("return_requests").insert({ item_id: i.id, contact: contact.value.trim() });
+      if (error) { err.textContent = "보내지 못했어요. 이미 반환된 물건이거나 잠시 문제가 있을 수 있어요. 잠시 후 다시 시도해 주세요."; btn.disabled = false; btn.textContent = "신청 보내기"; return; }
+      markSent();
+      d.replaceChildren(h("div", { class: "dlg" },
+        h("h2", { text: "신청이 접수됐어요", style: "margin-top:0" }),
+        h("p", { text: "따로 연락은 가지 않아요. 학생회실로 와서 관리 번호 " + formatNo(i.seq_no) + "를 알려 주세요. 잃어버린 상황과 사진에 없는 특징을 설명하면 확인한 뒤 돌려드려요." }),
+        h("div", { class: "formbtns" }, h("button", { class: "btn block", type: "button", text: "닫기", onclick: () => d.close() }))));
+    });
+    d.replaceChildren(form);
+  }
+
 
   document.querySelectorAll(".tab").forEach((b) => b.addEventListener("click", () => {
     state.tab = b.dataset.tab;
@@ -449,7 +482,7 @@ window.addEventListener('hashchange', function(){ location.reload(); });
   const SUB_BUCKET = C.submissionBucket || "submission-photos";
   const app = document.getElementById("app");
   const editor = document.getElementById("editor");
-  const state = { tab: "stored", q: "", items: [], sec: "items", subTab: "pending", inqTab: "open" };
+  const state = { tab: "stored", q: "", items: [], sec: "items", subTab: "pending", inqTab: "open", retTab: "pending" };
   const view = { content: null };
   let toastTimer;
 
@@ -524,21 +557,23 @@ window.addEventListener('hashchange', function(){ location.reload(); });
     app.replaceChildren(
       h("div", { class: "bar" }, h("h1", { text: "관리자", style: "margin:0;font-size:22px" }),
         h("button", { class: "btn ghost", type: "button", text: "로그아웃", onclick: async () => { await sb.auth.signOut(); showLogin(); } })),
-      h("div", { class: "tabs", role: "tablist" }, secBtn("items", "물품"), secBtn("subs", "등록 신청"), secBtn("inq", "문의")),
+      h("div", { class: "tabs", role: "tablist" }, secBtn("items", "물품"), secBtn("ret", "반환 신청"), secBtn("subs", "등록 신청"), secBtn("inq", "문의")),
       content);
     showSection(content); refreshCounts();
   }
 
   async function refreshCounts() {
-    const [a, b] = await Promise.all([
+    const [a, b, c] = await Promise.all([
       sb.from("submissions").select("id", { count: "exact", head: true }).eq("status", "pending"),
-      sb.from("inquiries").select("id", { count: "exact", head: true }).eq("is_done", false)]);
+      sb.from("inquiries").select("id", { count: "exact", head: true }).eq("is_done", false),
+      sb.from("return_requests").select("id", { count: "exact", head: true }).eq("status", "pending")]);
     const set = (key, n) => { const el = app.querySelector(`[data-sec="${key}"]`); if (el) el.textContent = el.dataset.label + (n ? ` (${n})` : ""); };
-    set("subs", a.count); set("inq", b.count);
+    set("subs", a.count); set("inq", b.count); set("ret", c.count);
   }
 
   function showSection(content) {
-    if (state.sec === "subs") showSubmissions(content);
+    if (state.sec === "ret") showReturns(content);
+    else if (state.sec === "subs") showSubmissions(content);
     else if (state.sec === "inq") showInquiries(content);
     else showItems(content);
   }
@@ -622,6 +657,48 @@ window.addEventListener('hashchange', function(){ location.reload(); });
       toast("승인하여 목록에 등록했습니다.");
     } catch (e) { toast("물품은 등록됐지만 신청 상태를 바꾸지 못했습니다. 신청을 직접 처리해 주세요: " + msgOf(e)); }
     refreshView();
+  }
+
+  /* ---------- 반환 신청 ---------- */
+  async function showReturns(content) {
+    const list = h("div", { class: "list" }, h("p", { class: "muted", text: "불러오는 중…" }));
+    const tabBtn = (key, label) => h("button", { class: "tab", type: "button", role: "tab", "aria-selected": String(state.retTab === key), text: label,
+      onclick: () => { state.retTab = key; showReturns(content); } });
+    content.replaceChildren(
+      h("p", { class: "muted", text: "학생이 '내 물건 같아요'라고 보낸 신청입니다. 신청만으로는 반환하지 않고, 학생회실에서 설명을 비공개 정보와 대조해 확인한 뒤 돌려주세요." }),
+      h("div", { class: "tabs", role: "tablist" }, tabBtn("pending", "대기 중"), tabBtn("done", "처리됨")), list);
+    let qy = sb.from("return_requests").select("*, items(seq_no,name,status,photo_path)").order("created_at", { ascending: false }).limit(500);
+    qy = state.retTab === "pending" ? qy.eq("status", "pending") : qy.neq("status", "pending");
+    const { data, error } = await qy;
+    if (error) { list.replaceChildren(h("p", { class: "err", text: "불러오기 실패: " + msgOf(error) })); return; }
+    if (!data.length) { list.replaceChildren(h("p", { class: "empty", text: state.retTab === "pending" ? "대기 중인 반환 신청이 없습니다." : "처리된 반환 신청이 없습니다." })); return; }
+    const counts = {};
+    data.forEach((r) => { counts[r.item_id] = (counts[r.item_id] || 0) + 1; });
+    list.replaceChildren(...data.map((r) => retCard(r, counts[r.item_id], state.retTab === "pending")));
+  }
+  function retCard(r, n, pending) {
+    const it = r.items || {};
+    const meta = (t) => h("p", { class: "meta", style: "white-space:pre-wrap;word-break:break-word", text: t });
+    return h("article", { class: "card" },
+      h("div", { style: "padding:12px" },
+        h("div", { class: "row" }, h("span", { class: "no", text: it.seq_no ? formatNo(it.seq_no) : "삭제된 물품" }), h("span", { class: "badge " + (pending ? "stored" : "returned"), text: pending ? "대기 중" : "처리됨" })),
+        h("h3", { class: "name", text: it.name || "" }),
+        meta("신청 " + formatDate(r.created_at)),
+        meta("신청자 " + r.contact),
+        it.status === "returned" ? meta("※ 이미 반환 완료된 물품입니다.") : null,
+        pending && n > 1 ? h("p", { class: "err", style: "margin:6px 0 0", text: "⚠ 같은 물품에 " + n + "명이 신청했습니다. 임의로 반환하지 말고 학생회와 상의하세요." }) : null),
+      h("div", { class: "actions" },
+        h("button", { class: "btn", type: "button", text: pending ? "처리 완료로 표시" : "대기 중으로 되돌리기", onclick: () => toggleReturn(r) }),
+        h("button", { class: "btn danger", type: "button", text: "삭제", onclick: () => deleteReturn(r) })));
+  }
+  async function toggleReturn(r) {
+    try { await mustChange(sb.from("return_requests").update({ status: r.status === "pending" ? "done" : "pending" }).eq("id", r.id)); refreshView(); }
+    catch (e) { toast("변경 실패: " + msgOf(e)); }
+  }
+  async function deleteReturn(r) {
+    if (!confirm("이 반환 신청을 삭제할까요? 되돌릴 수 없습니다.")) return;
+    try { await mustChange(sb.from("return_requests").delete().eq("id", r.id)); toast("삭제했습니다."); refreshView(); }
+    catch (e) { toast("삭제 실패: " + msgOf(e)); }
   }
 
   /* ---------- 문의 ---------- */
@@ -819,6 +896,8 @@ window.addEventListener('hashchange', function(){ location.reload(); });
     add(blocked(await sb.from("item_private").select("*").limit(1)), "비공개 정보(발견 장소·특징)를 읽을 수 없음");
     add(blocked(await sb.from("submissions").select("*").limit(1)), "학생 등록 신청 내용을 읽을 수 없음");
     add(blocked(await sb.from("inquiries").select("*").limit(1)), "문의 내용을 읽을 수 없음");
+    add(blocked(await sb.from("return_requests").select("*").limit(1)), "반환 신청 내용(신청자 정보)을 읽을 수 없음");
+    add(blocked(await sb.from("return_requests").update({ status: "done" }).eq("id", Z).select()), "반환 신청을 처리 완료로 바꿀 수 없음");
     add(blocked(await sb.from("admins").select("*").limit(1)), "관리자 목록을 읽을 수 없음");
     add(blocked(await sb.from("items").update({ name: "x" }).eq("id", Z).select()), "물품을 수정할 수 없음");
     add(blocked(await sb.from("items").delete().eq("id", Z).select()), "물품을 삭제할 수 없음");
