@@ -141,21 +141,21 @@ window.APP_CONFIG = {
     "학용품",
     "기타"
   ],
-  "storageLocation": "학생회실",
+  "storageLocation": "생활교육실",
   "guides": {
     "find": { "title": "내 물건 찾아가기", "steps": [
       ["사진과 관리 번호 확인", "이 사이트에서 내 물건을 찾고, 맞으면 \u0027반환 신청\u0027을 남겨 주세요."],
-      ["학생회실에서 설명", "관리 번호를 말하고, 잃어버린 상황과 사진에 없는 특징을 알려 주세요."],
+      ["생활교육실에서 설명", "관리 번호를 말하고, 잃어버린 상황과 사진에 없는 특징을 알려 주세요."],
       ["확인되면 가져가기", "설명이 기록과 맞으면 물건을 돌려드려요."]
     ]},
     "drop": { "title": "분실물 맡기기", "steps": [
-      ["학생회실로 가져가기", "주운 물건을 학생회실에 가져가 주세요."],
+      ["생활교육실로 가져가기", "주운 물건을 생활교육실에 가져가 주세요."],
       ["주운 곳 알려주기", "어디서, 언제 주웠는지 간단히 말해 주세요."],
       ["맡기면 끝", "사진과 함께 이 사이트 목록에 올라와요."]
     ]}
   },
   "submissionBucket": "submission-photos",
-  "submitNotice": "주운 물건을 등록 신청하면 확인한 뒤 목록에 올려요. 신청한 물건은 바로 목록에 나타나지 않아요. 물건은 직접 학생회실로 가져다 주세요.",
+  "submitNotice": "주운 물건을 등록 신청하면 확인한 뒤 목록에 올려요. 신청한 물건은 바로 목록에 나타나지 않아요. 물건은 직접 생활교육실로 가져다 주세요.",
   "inquiryNotice": "분실물에 관한 질문이나 건의를 남겨 주세요. 분실물 운영팀이 확인해요. 답변이 필요하면 학년·반·이름을 함께 적어 주세요."
 };
 /* ===== 설정 끝 ===== */
@@ -220,9 +220,9 @@ window.addEventListener('hashchange', function(){ location.reload(); });
   // 연결 전 임시 화면에서 쓰는 샘플 (실제 저장되지 않음)
   const now = Date.now(), day = 864e5;
   const DEMO = [
-    { id: "d1", seq_no: 3, name: "검정색 무선 이어폰 케이스", category: "전자기기", description: "검정색 케이스입니다. (샘플)", storage_location: "학생회실", status: "stored", photo_path: null, registered_at: new Date(now - 1 * day).toISOString() },
-    { id: "d2", seq_no: 2, name: "파란색 체육복 상의", category: "의류", description: "왼쪽 가슴에 학교 로고가 있습니다. (샘플)", storage_location: "학생회실", status: "stored", photo_path: null, registered_at: new Date(now - 3 * day).toISOString() },
-    { id: "d3", seq_no: 1, name: "필통", category: "학용품", description: "샘플 데이터입니다.", storage_location: "학생회실", status: "returned", photo_path: null, registered_at: new Date(now - 9 * day).toISOString() }
+    { id: "d1", seq_no: 3, name: "검정색 무선 이어폰 케이스", category: "전자기기", description: "검정색 케이스입니다. (샘플)", storage_location: "생활교육실", status: "stored", photo_path: null, registered_at: new Date(now - 1 * day).toISOString() },
+    { id: "d2", seq_no: 2, name: "파란색 체육복 상의", category: "의류", description: "왼쪽 가슴에 학교 로고가 있습니다. (샘플)", storage_location: "생활교육실", status: "stored", photo_path: null, registered_at: new Date(now - 3 * day).toISOString() },
+    { id: "d3", seq_no: 1, name: "필통", category: "학용품", description: "샘플 데이터입니다.", storage_location: "생활교육실", status: "returned", photo_path: null, registered_at: new Date(now - 9 * day).toISOString() }
   ];
 
   function demoBanner() {
@@ -305,7 +305,7 @@ window.addEventListener('hashchange', function(){ location.reload(); });
         h("dt", { text: "보관 장소" }), h("dd", { text: C.storageLocation }),
         i.status === "returned" ? [h("dt", { text: "반환일" }), h("dd", { text: formatDate(i.returned_at) })] : null
       ),
-      i.status === "stored" ? h("p", { class: "notice-guide", text: "내 물건 같다면 반환 신청을 남기고, 위 관리 번호를 기억해 학생회실로 와 주세요. 신청만으로는 돌려받을 수 없고, 학생회실에서 확인을 받아야 해요." }) : null,
+      i.status === "stored" ? h("p", { class: "notice-guide", text: "내 물건 같다면 반환 신청을 남기고, 위 관리 번호를 기억해 생활교육실로 와 주세요. 신청만으로는 돌려받을 수 없고, 생활교육실에서 확인을 받아야 해요." }) : null,
       i.status === "stored" ? h("div", { class: "formbtns" }, h("button", { class: "btn block", type: "button", text: "반환 신청", onclick: () => openReturn(i) })) : null,
       h("div", { class: "formbtns" }, h("button", { class: "btn ghost block", type: "button", onclick: () => d.close(), text: "닫기" }))
     ));
@@ -322,9 +322,9 @@ window.addEventListener('hashchange', function(){ location.reload(); });
     const form = h("form", { class: "dlg" },
       h("h2", { text: "반환 신청", style: "margin-top:0" }),
       h("p", { class: "meta", text: formatNo(i.seq_no) + " · " + i.name }),
-      h("p", { class: "notice-guide", text: "신청은 '내 물건 같아요'라는 요청이에요. 신청만으로는 돌려받을 수 없고, 학생회실에서 관리 번호와 물건의 특징을 설명해 확인을 받아야 해요. 같은 물건에 여러 명이 신청하면 학생회와 상의해 정해요." }),
+      h("p", { class: "notice-guide", text: "신청은 '내 물건 같아요'라는 요청이에요. 신청만으로는 돌려받을 수 없고, 생활교육실에서 관리 번호와 물건의 특징을 설명해 확인을 받아야 해요. 같은 물건에 여러 명이 신청하면 학생회와 상의해 정해요." }),
       h("label", { text: "학년·반·이름 (연락처) *" }), contact,
-      h("p", { class: "help", text: "학생회실에서 본인 확인에만 쓰이고, 따로 연락하지는 않아요. 전화번호처럼 꼭 필요하지 않은 개인정보는 적지 마세요." }),
+      h("p", { class: "help", text: "생활교육실에서 본인 확인에만 쓰이고, 따로 연락하지는 않아요. 전화번호처럼 꼭 필요하지 않은 개인정보는 적지 마세요." }),
       err,
       h("div", { class: "formbtns" }, h("button", { class: "btn ghost", type: "button", text: "취소", onclick: () => openDetail(i) }), btn));
     form.addEventListener("submit", async (e) => {
@@ -338,7 +338,7 @@ window.addEventListener('hashchange', function(){ location.reload(); });
       markSent();
       d.replaceChildren(h("div", { class: "dlg" },
         h("h2", { text: "신청이 접수됐어요", style: "margin-top:0" }),
-        h("p", { text: "따로 연락은 가지 않아요. 학생회실로 와서 관리 번호 " + formatNo(i.seq_no) + "를 알려 주세요. 잃어버린 상황과 사진에 없는 특징을 설명하면 확인한 뒤 돌려드려요." }),
+        h("p", { text: "따로 연락은 가지 않아요. 생활교육실로 와서 관리 번호 " + formatNo(i.seq_no) + "를 알려 주세요. 잃어버린 상황과 사진에 없는 특징을 설명하면 확인한 뒤 돌려드려요." }),
         h("div", { class: "formbtns" }, h("button", { class: "btn block", type: "button", text: "닫기", onclick: () => d.close() }))));
     });
     d.replaceChildren(form);
@@ -469,7 +469,7 @@ window.addEventListener('hashchange', function(){ location.reload(); });
       const { error } = await sb.from("inquiries").insert({ message: msg.value.trim(), contact: contact.value.trim() });
       if (error) { err.textContent = "보내지 못했어요. 잠시 후 다시 시도해 주세요."; btn.disabled = false; btn.textContent = "문의 보내기"; return; }
       markSent();
-      root.replaceChildren(doneBox("문의가 접수됐어요", "분실물 운영팀이 확인할 거예요. 답변은 이 사이트에 표시되지 않으니, 필요하면 학생회실에서 직접 물어보세요.", again));
+      root.replaceChildren(doneBox("문의가 접수됐어요", "분실물 운영팀이 확인할 거예요. 답변은 이 사이트에 표시되지 않으니, 필요하면 생활교육실에서 직접 물어보세요.", again));
     });
     root.replaceChildren(form);
   }
@@ -665,7 +665,7 @@ window.addEventListener('hashchange', function(){ location.reload(); });
     const tabBtn = (key, label) => h("button", { class: "tab", type: "button", role: "tab", "aria-selected": String(state.retTab === key), text: label,
       onclick: () => { state.retTab = key; showReturns(content); } });
     content.replaceChildren(
-      h("p", { class: "muted", text: "학생이 '내 물건 같아요'라고 보낸 신청입니다. 신청만으로는 반환하지 않고, 학생회실에서 설명을 비공개 정보와 대조해 확인한 뒤 돌려주세요." }),
+      h("p", { class: "muted", text: "학생이 '내 물건 같아요'라고 보낸 신청입니다. 신청만으로는 반환하지 않고, 생활교육실에서 설명을 비공개 정보와 대조해 확인한 뒤 돌려주세요." }),
       h("div", { class: "tabs", role: "tablist" }, tabBtn("pending", "대기 중"), tabBtn("done", "처리됨")), list);
     let qy = sb.from("return_requests").select("*, items(seq_no,name,status,photo_path)").order("created_at", { ascending: false }).limit(500);
     qy = state.retTab === "pending" ? qy.eq("status", "pending") : qy.neq("status", "pending");
@@ -821,7 +821,7 @@ window.addEventListener('hashchange', function(){ location.reload(); });
       h("label", { text: "물품명 *" }), name,
       h("label", { text: "종류" }), cat,
       h("label", { text: "설명 (학생에게 공개)" }), desc,
-      h("p", { class: "help", text: "보관 장소는 모든 물품이 학생회실로 자동 표시돼요." }),
+      h("p", { class: "help", text: "보관 장소는 모든 물품이 생활교육실로 자동 표시돼요." }),
       h("label", { text: "사진 (선택)" }), file, prev,
       (item && item.photo_path) || (sub && sub.photo_path) ? h("label", { class: "check" }, rm, "현재 사진 삭제") : null,
       isNew ? null : h("label", { text: "반환 상태" }),
